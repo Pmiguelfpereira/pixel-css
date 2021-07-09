@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+:root {
+  --grid-cols: 1;
+  --grid-rows: 1;
+}
+
+#container {
+  display: grid;
+  grid-template-rows: repeat(var(--grid-rows), 1fr);
+  grid-template-columns: repeat(var(--grid-cols), 1fr);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.grid-item {
+  padding: 10px 4px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+</style>
+<body>
+    <div style="text-align: center;padding: 20px;">
+        <h3>Pixel Grid</h3>
+        <input type="text" id="inprows" placeholder="Rows">
+        <input type="text" id="inpcols" placeholder="Cols">
+        <button id="btng" onclick="makeGrid()">Generate</button>
+    </div>
+    <div style="text-align: center;padding: 20px 20px 40px 20px;">
+        <h3>Item Color</h3>
+        <input value="rgba(40,170,255,0.5)" data-jscolor="" id="inpcolor">
+    </div>
+    <div style="max-width: 800px;margin: 0 auto;" id="allcontent">
+        <div id="container"></div>
+    </div>
+    <div style="margin: 0 auto;width: 100%;text-align: center;">
+        <h3>Opções</h3>
+        <button id="btsave" onclick="savecss()">Save</button>
+        <button id="btclear" onclick="clearcss()">Clear Save</button>
+        <button id="btgenerate" onclick="generate()">Generate Css</button>
+    </div>
+</body>
+<script src="jscolor.js"></script>
+<script>
+const container = document.getElementById("container");
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function makeRows(rows, cols) {
+  container.style.setProperty('--grid-rows', rows);
+  container.style.setProperty('--grid-cols', cols);
+  for (c = 0; c < (rows * cols); c++) {
+    let cell = document.createElement("div");
+    cell.innerText = (c + 1);
+    container.appendChild(cell).className = "grid-item";
+  };
+  clickitem();
+};
+
+function makeGrid(){
+    container.innerHTML = "";
+    clearcss();
+    makeRows(document.getElementById("inprows").value, document.getElementById("inpcols").value);
+}
+
+function clickitem(){
+var griditem = document.getElementsByClassName('grid-item');
+for(var z = 0; z < griditem.length; z++) {
+    var elem = griditem[z];   
+    elem.onclick = function() {
+        this.innerHTML="";
+        this.style.background = document.getElementById("inpcolor").value ;
+        return false;
+    };
+}
+}
+
+function removetext(){
+    var griditem = document.getElementsByClassName('grid-item');
+    for(var z = 0; z < griditem.length; z++) {
+    var elem = griditem[z];   
+    elem.innerHTML="";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var data = localStorage.getItem('htmlstorage');
+    if(data != null){
+        document.getElementById("allcontent").innerHTML = data;
+    }
+
+});
+
+function savecss(){
+    
+    storagehtml(document.getElementById("allcontent").innerHTML);
+}
+
+function clearcss(){
+    localStorage.removeItem('htmlstorage');
+}
+
+function storagehtml(html){
+    localStorage.setItem('htmlstorage', html);
+}
+
+function generate(){
+    removetext();
+    console.log(getHtml(document.getElementById("allcontent").innerHTML));
+}
+
+function getHtml(htmlpixel) {
+  var html = '<!DOCTYPE html>';
+  html += '<html lang="en">';
+  html += '<head>';
+    html += '<meta charset="UTF-8">';
+    html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+    html += '<title>Document</title>';
+  html += '<style>#container {display: grid;grid-template-rows: repeat('+document.getElementById("inprows").value+', 1fr);grid-template-columns: repeat('+document.getElementById("inpcols").value+', 1fr);width: 100%;margin: 0 auto;}.grid-item {padding: 10px 4px;border: 0px solid #ddd;text-align: center;}</style>';
+  html += '<body style="margin: 0;position: absolute;width: 100%;top: 50%;left: 50%;transform: translate(-50%,-50%);max-width:400px">';
+  html += htmlpixel;
+  html += '</body>';
+  html += '</html>';
+  
+  return html;
+}
+
+</script>
+</html>
+
+
